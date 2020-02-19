@@ -5,8 +5,6 @@ module OK_com(
         output  wire    [2:0] okHU,
         inout   wire    [31:0] okUHU,
         inout   wire    okAA,
-        input   wire    sys_clkn,
-        input   wire    sys_clkp,
         // Your signals go here
         input wire [15:0] temp
     );
@@ -36,18 +34,6 @@ module OK_com(
     localparam  endPt_count = 1;
     wire [endPt_count*65-1:0] okEHx;  
     okWireOR # (.N(endPt_count)) wireOR (okEH, okEHx);
-    
-    // Clock
-    wire clk;
-    reg [31:0] clkdiv;
-    reg slow_clk;
-    reg [7:0] counter;
-    
-    IBUFGDS osc_clk(
-        .O(clk),
-        .I(sys_clkp),
-        .IB(sys_clkn)
-    );
     
     assign result_wire = temp;    // Left-Side of 'assign' statement must be a 'wire'
 

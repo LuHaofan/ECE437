@@ -14,7 +14,7 @@ module JTEG_Test_File(
     output I2C_SCL_0,
     inout I2C_SDA_0 
 );
-
+    
     wire  ILA_Clk, ACK_bit, FSM_Clk, TrigerEvent;    
     wire [23:0] ClkDivThreshold = 1_000;   
     wire SCL, SDA; 
@@ -36,6 +36,7 @@ module JTEG_Test_File(
     end
 
     //Instantiate the module that we like to test
+
     I2C_Transmit I2C_Test1 (
         .button(button),
         .led(led),
@@ -58,8 +59,6 @@ module JTEG_Test_File(
         .okHU(okHU),
         .okUHU(okUHU),
         .okAA(okAA),
-        .sys_clkn(sys_clkn),
-        .sys_clkp(sys_clkp),
         .temp(temp)
         );
     //Instantiate the ILA module
