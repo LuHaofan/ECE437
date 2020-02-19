@@ -35,37 +35,26 @@ print("----------------------------------------------------")
 print("----------------------------------------------------")
 
 #%% 
-# Define the two variables that will send data to the FPGA
-# We will use WireIn instructions to send data to the FPGA
-'''
-variable_1 = 50; # variable_1 is initilized to digitla number 50
-variable_2 = 14; # # variable_2 is initilized to digitla number 14
-print("Variable 1 is initilized to " + str(int(variable_1)))
-print("Variable 2 is initilized to " + str(int(variable_2)))
 
-dev.SetWireInValue(0x00, variable_1) #Input data for Variable 1 using mamoery spacee 0x00
-dev.SetWireInValue(0x01, variable_2) #Input data for Variable 2 using mamoery spacee 0x01
-dev.UpdateWireIns()  # Update the WireIns
-'''
-#%% 
-# We will read data from the FPGA in two different variables
-# Since we are using a slow clock on the FPGA to compute the results
-# we need to wait for the resutl to be computed
 def bit2Temp(tmp):
-    # to be defined
+    b = bin(tmp)[2:-3]
+    if(len(b)<13):
+        b = '0'*(13-len(b))+b
+    if (b[0] == '1'):
+        re = (int(b,2)-8192)/16
+    else:
+        re = int(b,2)/16
+    return re
     
+N = 10
 temp_arr = []
-for i in range(10):
-    time.sleep(0.5)                 
+while(len(temp_arr) < N):              
     dev.UpdateWireOuts()
     result = dev.GetWireOutValue(0x20)
-    temp_arr.append(bit2Temp(result))
-# First recieve data from the FPGA by using UpdateWireOuts
-  # Transfer the recived data in result_sum variable
-#result_difference = dev.GetWireOutValue(0x21)  # Transfer teh recived data in result_difference variable
-#print("The sum of the two numbers is " + str(int(result_sum))) 
-#print("The difference between the two numbers is " + str(int(result_difference))) 
+    if result != 0:
+        temp_arr.append(bit2Temp(result))
+    time.sleep(0.5)   
+
 print('Temperature read from the Temperature sensor is: {}'.format(temp_arr))
 dev.Close
     
-#%%
