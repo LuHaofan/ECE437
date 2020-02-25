@@ -881,6 +881,7 @@ module I2C_Transmit(
             // read the ACK bit from the sensor and display it on LED[7]
             8'd147 : begin
                   SCL <= 1'b0;
+                  SDA <= 1'b0;
                   State <= State + 1'b1;                 
             end   
 
@@ -901,7 +902,8 @@ module I2C_Transmit(
             end  
             //receiving data 7 
             8'd151 : begin
-                  SCL <= 1'b0;     
+                  SCL <= 1'b0;  
+                  SDA <= 1'bz;   
                   State <= State + 1'b1;
             end   
 

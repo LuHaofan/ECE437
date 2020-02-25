@@ -20,8 +20,9 @@ module JTEG_Test_File(
     wire SCL, SDA; 
     wire [7:0] state;
     wire [15:0] temp;
+    reg [15:0] send;
     reg triger = 0;
-    reg [7:0] counter;
+    reg [7:0] counter = 0;
     
     assign TrigerEvent = button[3];
     
@@ -31,7 +32,12 @@ module JTEG_Test_File(
     
     always @(posedge FSM_Clk) begin 
         if(triger == 1) begin
-            counter = counter + 1'b1;
+            if(counter == 192)begin
+                counter = 1;
+                send = temp;
+            end
+            else 
+                counter = counter + 1'b1;
         end
     end
 
@@ -59,7 +65,7 @@ module JTEG_Test_File(
         .okHU(okHU),
         .okUHU(okUHU),
         .okAA(okAA),
-        .temp(temp)
+        .temp(send)
         );
     //Instantiate the ILA module
     ila_0 ila_sample12 ( 
