@@ -30,33 +30,55 @@ module Imager_toplevel(
     
     input sys_clkn,
     input sys_clkp,
-    input SPI_OUT,
+    input CVM300_SPI_OUT,
     
-    output reg SPI_EN,
-    output reg SPI_IN,
-    output reg SPI_Clk
+    output  CVM300_SPI_EN,
+    output  CVM300_SPI_IN,
+    output  CVM300_SPI_CLK
     );
     
+    wire [23:0] ClkDivThreshold = 10;   
     wire  FSM_Clk, TrigerEvent;    
     wire [7:0] data_recv;
     reg triger = 0;
     reg ptr = 0;
     reg n_pairs = 2;
+    reg SPI_en, SPI_in, SPI_clk;
+    wire SPI_EN_W, SPI_IN_W, SPI_CLK_W, SPI_EN_R, SPI_IN_R, SPI_CLK_R;
     reg [7:0] counter;
-    reg [7:0] ADDR [1:0];
-    reg [8:0] DATA [1:0];
+    wire [6:0] ADDR;
+    wire [7:0] DATA_IN;
+    wire [7:0] DATA_OUT;
+    wire       R_W;
     wire [6:0] addr_reg;
     wire [7:0] data_send;
-    reg [6:0] curr_addr;
-    reg [7:0] curr_data;
-    wire flag;
+    reg flag;
+    wire flag_W, flag_R;
     
     assign TrigerEvent = button[3];
-    assign addr_reg = curr_addr;
-    assign data_send = curr_data;
+    assign CVM300_SPI_EN = SPI_en;
+    assign CVM300_SPI_IN = SPI_in;
+    assign CVM300_SPI_CLK = SPI_clk;
     
     always @(posedge FSM_Clk) begin 
         if(TrigerEvent == 1'b0) triger = 1;
+        else triger = 0;
+    end
+    
+    always begin 
+        if(R_W == 1) begin
+            SPI_en = SPI_EN_W;
+            SPI_in = SPI_IN_W;
+            SPI_clk = SPI_CLK_W;
+            flag = flag_W;
+        end
+        else begin
+            SPI_en = SPI_EN_R;
+            SPI_in = SPI_IN_R;
+            SPI_clk = SPI_CLK_R;
+            flag = flag_R;
+        end
+    
     end
     
     always @(posedge FSM_Clk) begin 
@@ -65,36 +87,33 @@ module Imager_toplevel(
         end
     end
     
-    always @(posedge flag) begin
-        if (ptr < n_pairs) begin
-            ptr = ptr + 1;
-            curr_addr <= ADDR[ptr];
-            curr_data <= DATA[ptr];
-        end
-    end
-    
     SPI_write write1 (
-        .Addr(addr_reg),
-        .Data(data_send),
+        .triger(triger),
+        .Addr(ADDR),
+        .Data(DATA_IN),
         .sys_clkn(sys_clkn),
         .sys_clkp(sys_clkp),
-        
-        .SPI_EN(SPI_EN),
-        .SPI_IN(SPI_IN),
-        .SPI_Clk(SPI_Clk),
-        .done(flag)
+        .R_W(R_W),
+        .FSM_Clk(FSM_Clk),
+        .SPI_EN(SPI_EN_W),
+        .SPI_IN(SPI_IN_W),
+        .SPI_CLK(SPI_CLK_W),
+        .done(flag_W)
     );
     
     SPI_read read1 (
-        .Addr(addr_reg),
+        .triger(triger),
+        .Addr(ADDR),
         .sys_clkn(sys_clkn),
         .sys_clkp(sys_clkp),
-        .SPI_OUT(SPI_OUT),
-        
-        .SPI_EN(SPI_EN),
-        .SPI_IN(SPI_IN),
-        .SPI_Clk(SPI_Clk),
-        .done(flag)        
+        .FSM_Clk(FSM_Clk),
+        .SPI_OUT(CVM300_SPI_OUT),
+        .R_W(R_W),
+        .SPI_EN(SPI_EN_R),
+        .SPI_IN(SPI_IN_R),
+        .DATA_OUT(DATA_OUT),
+        .SPI_CLK(SPI_CLK_R),
+        .done(flag_R)        
     );
     
     OK_com OK_module (
@@ -104,7 +123,16 @@ module Imager_toplevel(
         .okAA(okAA),
         .sys_clkn(sys_clkn),
         .sys_clkp(sys_clkp),
-        .temp(data_recv)
+        .DATA_OUT(DATA_OUT),
+        .ADDR(ADDR),
+        .DATA_IN(DATA_IN),
+        .R_W(R_W)   //write: 1, read: 0
         );
         
+    
+    ClockGenerator ClockGenerator1 (  .sys_clkn(sys_clkn),
+                                      .sys_clkp(sys_clkp),                                      
+                                      .ClkDivThreshold(ClkDivThreshold),
+                                      .FSM_Clk(FSM_Clk)                                    
+                                       );
 endmodule

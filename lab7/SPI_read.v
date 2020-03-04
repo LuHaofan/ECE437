@@ -25,32 +25,30 @@ module SPI_read(
     input sys_clkn,
     input sys_clkp,
     input SPI_OUT,
-    
-    output reg SPI_EN,
-    output reg SPI_IN,
-    output reg SPI_Clk,
-    output [7:0] data_temp,
+    input triger,
+    input R_W,
+    input FSM_Clk,
+    output  SPI_EN,
+    output  SPI_IN,
+    output  SPI_CLK,
+    output reg[7:0] DATA_OUT,
     output reg done
     );
     
-    wire [23:0] ClkDivThreshold = 10;   
-    wire FSM_Clk;
-    ClockGenerator ClockGenerator1 (  .sys_clkn(sys_clkn),
-                                      .sys_clkp(sys_clkp),                                      
-                                      .ClkDivThreshold(ClkDivThreshold),
-                                      .FSM_Clk(FSM_Clk)                                    
-                                       );
-                           
     localparam STATE_INIT       = 8'd0;                                     
     reg [7:0] state = 8'd0;
     reg [7:0] data_reg;
     
-    assign data_temp = data_reg;
+    reg SPI_en, SPI_in, SPI_clk;
+    
+    assign SPI_EN = SPI_en;
+    assign SPI_IN = SPI_in;
+    assign SPI_CLK = SPI_clk;
 
     initial  begin
-        SPI_EN = 1'b0;
-        SPI_IN = 1'b0;
-        SPI_Clk = 1'b0;   
+        SPI_en = 1'b0;
+        SPI_in = 1'b0;
+        SPI_clk = 1'b0;   
     end
     
     always @(posedge FSM_Clk) begin
@@ -58,265 +56,269 @@ module SPI_read(
         case (state)
             // Press Button[3] to start the state machine. Otherwise, stay in the STATE_INIT state        
             STATE_INIT : begin
-                SPI_EN <= 1'b0;
-                SPI_IN <= 1'bz;
-                SPI_Clk <= 1'b0;
-                state <= state + 1'b1;
+                SPI_en <= 1'b0;
+                SPI_in <= 1'bz;
+                SPI_clk <= 1'b0;
+                if(triger == 1 && R_W == 0) begin
+                    state <= state + 1'b1;
+                    done <= 0;
+                end
             end
             
             8'd1 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'b0;     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'b0;     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd2 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'b1;     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'b0;     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd3 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[6];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[6];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd4 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[6];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[6];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd5 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[5];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[5];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd6 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[5];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[5];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd7 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[4];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[4];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd8 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[4];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[4];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd9 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[3];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[3];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd10 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[3];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[3];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd11 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[2];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[2];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd12 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[2];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[2];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd13 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[1];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[1];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd14 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[1];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[1];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd15 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[0];     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[0];     // Set the control bit
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd16 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= Addr[0];     // Set the control bit
-                SPI_Clk <= 1'b1;
+                SPI_en <= 1'b1;
+                SPI_in <= Addr[0];     // Set the control bit
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd17 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[7] <= SPI_OUT;     
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd18 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[7] <= SPI_OUT;     
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd19 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[6] <= SPI_OUT;     
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd20 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[6] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd21 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[5] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd22 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[5] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd23 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[4] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd24 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[4] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd25 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[3] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd26 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[3] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd27 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[2] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd28 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[2] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd29 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[1] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd30 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[1] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd31 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[0] <= SPI_OUT;
-                SPI_Clk <= 1'b0;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd32 : begin
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;
                 data_reg[0] <= SPI_OUT;
-                SPI_Clk <= 1'b1;
+                SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd33 : begin
                
-                SPI_EN <= 1'b1;
-                SPI_IN <= 1'bz;     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b1;
+                SPI_in <= 1'bz;     // Set the control bit
+                DATA_OUT <= data_reg;
+                SPI_clk <= 1'b0;
                 state <= state + 1'b1;
                 
             end
             
             8'd34 : begin
-                SPI_EN <= 1'b0;
-                SPI_IN <= 1'bz;     // Set the control bit
-                SPI_Clk <= 1'b0;
+                SPI_en <= 1'b0;
+                SPI_in <= 1'bz;     // Set the control bit
+                SPI_clk <= 1'b0;
                 done <= 1'd1;
                 state <= STATE_INIT;
             end

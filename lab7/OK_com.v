@@ -8,7 +8,10 @@ module OK_com(
         input   wire    sys_clkn,
         input   wire    sys_clkp,
         // Your signals go here
-        input wire [7:0] temp
+        input   wire [7:0] DATA_OUT,
+        output  wire  [6:0] ADDR,
+        output  wire  [7:0] DATA_IN,
+        output  wire        R_W   //write: 1, read: 0
     );
        
     wire okClk;            //These are FrontPanel wires needed to IO communication    
@@ -49,13 +52,26 @@ module OK_com(
         .IB(sys_clkn)
     );
     
-    assign result_wire = temp;    // Left-Side of 'assign' statement must be a 'wire'
-
+    okWireIn wire10 (   .okHE(okHE), 
+                        .ep_addr(8'h00), 
+                        .ep_dataout(ADDR));
+                        
+    //  variable_2 is a wire that contains data sent from the PC to FPGA.
+    //  The data is communicated via memeory location 0x01                 
+    okWireIn wire11 (   .okHE(okHE), 
+                        .ep_addr(8'h01), 
+                        .ep_dataout(DATA_IN));
+                                      
+    okWireIn wire12 (   .okHE(okHE), 
+                        .ep_addr(8'h02), 
+                        .ep_dataout(R_W));
+                        
     // result_wire is transmited to the PC via address 0x20   
     okWireOut wire20 (  .okHE(okHE), 
                         .okEH(okEHx[ 0*65 +: 65 ]),
                         .ep_addr(8'h20), 
-                        .ep_datain(result_wire));
+                        .ep_datain(DATA_OUT));
+               
                         
 
 endmodule
