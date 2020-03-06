@@ -21,13 +21,12 @@
 
 
 module SPI_write(
+    input triger,
     input [6:0] Addr,
     input [7:0] Data,
-    input sys_clkn,
-    input sys_clkp,
-    input triger,
     input R_W,
     input FSM_Clk,
+
     output  SPI_EN,
     output  SPI_IN,
     output  SPI_CLK,
@@ -39,7 +38,6 @@ module SPI_write(
     assign SPI_EN = SPI_en;
     assign SPI_IN = SPI_in;
     assign SPI_CLK = SPI_clk;
-    
                                
     localparam STATE_INIT       = 8'd0;                                     
     reg [7:0] state = 8'd0;
@@ -53,7 +51,7 @@ module SPI_write(
     end
     
     always @(posedge FSM_Clk) begin
-        done <= 1'd0;
+        done <= 1'b0;
         case (state)
             // Press Button[3] to start the state machine. Otherwise, stay in the STATE_INIT state        
             STATE_INIT : begin
@@ -64,7 +62,6 @@ module SPI_write(
                 data_reg <= Data;
                 if(triger == 1 && R_W == 1) begin
                     state <= state + 1'b1;
-                    done <= 0;
                 end
             end
             
@@ -303,7 +300,7 @@ module SPI_write(
                 SPI_en <= 1'b0;
                 SPI_in <= 1'bz;     // Set the control bit
                 SPI_clk <= 1'b0;
-                done <= 1'd1;
+                done <= 1'b1;
                 state <= STATE_INIT;
             end
         endcase

@@ -65,7 +65,7 @@ module Imager_toplevel(
         else triger = 0;
     end
     
-    always begin 
+    always@(*) begin 
         if(R_W == 1) begin
             SPI_en = SPI_EN_W;
             SPI_in = SPI_IN_W;
@@ -91,8 +91,6 @@ module Imager_toplevel(
         .triger(triger),
         .Addr(ADDR),
         .Data(DATA_IN),
-        .sys_clkn(sys_clkn),
-        .sys_clkp(sys_clkp),
         .R_W(R_W),
         .FSM_Clk(FSM_Clk),
         .SPI_EN(SPI_EN_W),
@@ -104,8 +102,6 @@ module Imager_toplevel(
     SPI_read read1 (
         .triger(triger),
         .Addr(ADDR),
-        .sys_clkn(sys_clkn),
-        .sys_clkp(sys_clkp),
         .FSM_Clk(FSM_Clk),
         .SPI_OUT(CVM300_SPI_OUT),
         .R_W(R_W),
@@ -121,8 +117,6 @@ module Imager_toplevel(
         .okHU(okHU),
         .okUHU(okUHU),
         .okAA(okAA),
-        .sys_clkn(sys_clkn),
-        .sys_clkp(sys_clkp),
         .DATA_OUT(DATA_OUT),
         .ADDR(ADDR),
         .DATA_IN(DATA_IN),

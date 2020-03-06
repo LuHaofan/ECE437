@@ -21,17 +21,16 @@
 
 
 module SPI_read(
-    input [6:0] Addr,
-    input sys_clkn,
-    input sys_clkp,
-    input SPI_OUT,
     input triger,
-    input R_W,
+    input [6:0] Addr,
     input FSM_Clk,
+    input SPI_OUT,
+    input R_W,
+    
     output  SPI_EN,
     output  SPI_IN,
-    output  SPI_CLK,
     output reg[7:0] DATA_OUT,
+    output  SPI_CLK,   
     output reg done
     );
     
@@ -52,7 +51,7 @@ module SPI_read(
     end
     
     always @(posedge FSM_Clk) begin
-        done <= 1'd0;
+        done <= 1'b0;
         case (state)
             // Press Button[3] to start the state machine. Otherwise, stay in the STATE_INIT state        
             STATE_INIT : begin
@@ -61,118 +60,117 @@ module SPI_read(
                 SPI_clk <= 1'b0;
                 if(triger == 1 && R_W == 0) begin
                     state <= state + 1'b1;
-                    done <= 0;
                 end
             end
             
             8'd1 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= 1'b0;     // Set the control bit
+                SPI_in <= 1'b0;       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd2 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= 1'b0;     // Set the control bit
+                SPI_in <= 1'b0;      
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd3 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[6];     // Set the control bit
+                SPI_in <= Addr[6];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd4 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[6];     // Set the control bit
+                SPI_in <= Addr[6];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd5 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[5];     // Set the control bit
+                SPI_in <= Addr[5];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd6 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[5];     // Set the control bit
+                SPI_in <= Addr[5];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd7 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[4];     // Set the control bit
+                SPI_in <= Addr[4];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd8 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[4];     // Set the control bit
+                SPI_in <= Addr[4];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd9 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[3];     // Set the control bit
+                SPI_in <= Addr[3];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd10 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[3];     // Set the control bit
+                SPI_in <= Addr[3];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd11 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[2];     // Set the control bit
+                SPI_in <= Addr[2];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd12 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[2];     // Set the control bit
+                SPI_in <= Addr[2];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd13 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[1];     // Set the control bit
+                SPI_in <= Addr[1];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd14 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[1];     // Set the control bit
+                SPI_in <= Addr[1];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
             
             8'd15 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[0];     // Set the control bit
+                SPI_in <= Addr[0];       
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
             end
             
             8'd16 : begin
                 SPI_en <= 1'b1;
-                SPI_in <= Addr[0];     // Set the control bit
+                SPI_in <= Addr[0];       
                 SPI_clk <= 1'b1;
                 state <= state + 1'b1;
             end
@@ -308,7 +306,7 @@ module SPI_read(
             8'd33 : begin
                
                 SPI_en <= 1'b1;
-                SPI_in <= 1'bz;     // Set the control bit
+                SPI_in <= 1'bz;       
                 DATA_OUT <= data_reg;
                 SPI_clk <= 1'b0;
                 state <= state + 1'b1;
@@ -317,7 +315,7 @@ module SPI_read(
             
             8'd34 : begin
                 SPI_en <= 1'b0;
-                SPI_in <= 1'bz;     // Set the control bit
+                SPI_in <= 1'bz;       
                 SPI_clk <= 1'b0;
                 done <= 1'd1;
                 state <= STATE_INIT;
