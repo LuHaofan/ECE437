@@ -21,7 +21,6 @@
 
 
 module SPI_read(
-    input triger,
     input [6:0] Addr,
     input FSM_Clk,
     input SPI_OUT,
@@ -58,7 +57,7 @@ module SPI_read(
                 SPI_en <= 1'b0;
                 SPI_in <= 1'bz;
                 SPI_clk <= 1'b0;
-                if(triger == 1 && R_W == 0) begin
+                if(R_W == 0) begin
                     state <= state + 1'b1;
                 end
             end

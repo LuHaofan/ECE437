@@ -41,8 +41,6 @@ module Imager_toplevel(
     wire  FSM_Clk, TrigerEvent;    
     wire [7:0] data_recv;
     reg triger = 0;
-    reg ptr = 0;
-    reg n_pairs = 2;
     reg SPI_en, SPI_in, SPI_clk;
     wire SPI_EN_W, SPI_IN_W, SPI_CLK_W, SPI_EN_R, SPI_IN_R, SPI_CLK_R;
     reg [7:0] counter;
@@ -50,8 +48,6 @@ module Imager_toplevel(
     wire [7:0] DATA_IN;
     wire [7:0] DATA_OUT;
     wire       R_W;
-    wire [6:0] addr_reg;
-    wire [7:0] data_send;
     reg flag;
     wire flag_W, flag_R;
     
@@ -88,7 +84,6 @@ module Imager_toplevel(
     end
     
     SPI_write write1 (
-        .triger(triger),
         .Addr(ADDR),
         .Data(DATA_IN),
         .R_W(R_W),
@@ -100,7 +95,6 @@ module Imager_toplevel(
     );
     
     SPI_read read1 (
-        .triger(triger),
         .Addr(ADDR),
         .FSM_Clk(FSM_Clk),
         .SPI_OUT(CVM300_SPI_OUT),
@@ -118,6 +112,8 @@ module Imager_toplevel(
         .okUHU(okUHU),
         .okAA(okAA),
         .DATA_OUT(DATA_OUT),
+        .flag_W(flag_W),
+        .flag_R(flag_R),
         .ADDR(ADDR),
         .DATA_IN(DATA_IN),
         .R_W(R_W)   //write: 1, read: 0

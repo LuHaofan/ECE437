@@ -6,7 +6,7 @@ import ok     # OpalKelly library
 
 dev = ok.okCFrontPanel()  # define a device for FrontPanel communication
 SerialStatus=dev.OpenBySerial("")      # open USB communicaiton with the OK board
-ConfigStatus=dev.ConfigureFPGA("imager.bit") # Configure the FPGA with this bit file
+ConfigStatus=dev.ConfigureFPGA("Imager_toplevel.bit") # Configure the FPGA with this bit file
 
 # Check if FrontPanel is initialized correctly and if the bit file is loaded.
 # Otherwise terminate the program
@@ -41,9 +41,11 @@ def read(addr_arr):
     for addr in addr_arr:
         dev.SetWireInValue(0x00, addr)
         dev.SetWireInValue(0x02, 0)
+        dev.UpdateWireIns()
+        time.sleep(0.1)
         dev.UpdateWireOuts()
         data_out = dev.GetWireOutValue(0x20)
-        print('Output Address:{}\n data:{}\n'.format(addr, data_out))
+        print('Output Address:{}\n Data:{}\n'.format(addr, data_out))
         ret[addr] = data_out
     return ret
 
@@ -55,7 +57,8 @@ ret = read(addr_arr)
 print(ret)
 
 #%% Formal test
-d = {58:44, 59:240, 60:10, 69:9, 80:2, 83:187, \
+
+d = {57:3, 58:44, 59:240, 60:10, 69:9, 80:2, 83:187, \
     97:240, 98:10, 100:112, 101:98, 102:34, 103:64, \
     106:94, 107:110, 108:91, 109:82, 110:80, \
     117:91 }

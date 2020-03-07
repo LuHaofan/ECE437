@@ -21,7 +21,6 @@
 
 
 module SPI_write(
-    input triger,
     input [6:0] Addr,
     input [7:0] Data,
     input R_W,
@@ -60,7 +59,7 @@ module SPI_write(
                 SPI_clk <= 1'b0;
                 addr_reg <= Addr;
                 data_reg <= Data;
-                if(triger == 1 && R_W == 1) begin
+                if(R_W == 1) begin
                     state <= state + 1'b1;
                 end
             end

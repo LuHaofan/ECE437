@@ -7,6 +7,8 @@ module OK_com(
         inout   wire    okAA,
         // Your signals go here
         input   wire [7:0] DATA_OUT,
+        input   wire  flag_W,
+        input   wire  flag_R,
         output  wire  [6:0] ADDR,
         output  wire  [7:0] DATA_IN,
         output  wire        R_W   //write: 1, read: 0
@@ -31,7 +33,7 @@ module OK_com(
 
     //Depending on the number of outgoing endpoints, adjust endPt_count accordingly.
     //In this example, we have 1 output endpoints, hence endPt_count = 2.
-    localparam  endPt_count = 1;
+    localparam  endPt_count = 3;
     wire [endPt_count*65-1:0] okEHx;  
     okWireOR # (.N(endPt_count)) wireOR (okEH, okEHx);
 
@@ -54,8 +56,15 @@ module OK_com(
                         .okEH(okEHx[ 0*65 +: 65 ]),
                         .ep_addr(8'h20), 
                         .ep_datain(DATA_OUT));
-               
+ 
+    okWireOut wire21 (  .okHE(okHE), 
+                        .okEH(okEHx[ 1*65 +: 65 ]),
+                        .ep_addr(8'h21), 
+                        .ep_datain(flag_W));              
                         
-
+    okWireOut wire22 (  .okHE(okHE), 
+                        .okEH(okEHx[ 2*65 +: 65 ]),
+                        .ep_addr(8'h22), 
+                        .ep_datain(flag_R));          
 endmodule
 
